@@ -247,6 +247,10 @@
 				<?php if ($auth->loggedIn()) : ?>
 					<li class="menu-item hidden"><a href="<?= site_url("auth/logout") ?>" target="_blank">Logout <?= $currentUser->first_name ?></a>
 					</li>
+					<?php if ($auth->isAdmin()) : ?>
+						<li class="menu-item hidden"><a href="<?= site_url("admin/dashboard") ?>">Dashboard</a>
+						</li>
+					<?php endif ?>
 				<?php else : ?>
 					<li class="menu-item hidden"><a href="<?= site_url("auth/create_user") ?>" target="_blank">Register</a></li>
 					<li class="menu-item hidden"><a href="<?= site_url("auth/login") ?>" target="_blank">Login</a>
