@@ -29,6 +29,7 @@ class BaseController extends Controller
 	 */
 	protected $request;
 
+
 	/**
 	 * An array of helpers to be loaded automatically upon
 	 * class instantiation. These helpers will be available
@@ -37,6 +38,8 @@ class BaseController extends Controller
 	 * @var array
 	 */
 	protected $helpers = [];
+	protected $currentUser, $auth;
+	protected $data = [];
 
 	/**
 	 * Constructor.
@@ -54,5 +57,9 @@ class BaseController extends Controller
 		// Preload any models, libraries, etc, here.
 		//--------------------------------------------------------------------
 		// E.g.: $this->session = \Config\Services::session();
+		$this->auth = new \IonAuth\Libraries\IonAuth();
+		$this->currentUser = $this->auth->user()->row();
+		$this->data['auth'] = $this->auth;
+		$this->data['currentUser'] = $this->currentUser;
 	}
 }

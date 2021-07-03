@@ -12,7 +12,8 @@
 		"ext-mbstring": "*",
 		"kint-php/kint": "^3.3",
 		"laminas/laminas-escaper": "^2.6",
-		"psr/log": "^1.1"
+		"psr/log": "^1.1",
+		"benedmunds/codeigniter-ion-auth": "4.x-dev"
 	},
 	"require-dev": {
 		"codeigniter4/codeigniter4-standard": "^1.0",
@@ -43,5 +44,12 @@
 		"forum": "http://forum.codeigniter.com/",
 		"source": "https://github.com/codeigniter4/CodeIgniter4",
 		"slack": "https://codeigniterchat.slack.com"
+	},
+	"minimum-stability": "dev",
+	"repositories": {
+		"ionAuth": {
+			"type": "vcs",
+			"url": "git@github.com:benedmunds/CodeIgniter-Ion-Auth.git"
+		}
 	}
 }
