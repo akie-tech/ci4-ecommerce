@@ -27,7 +27,7 @@ class Categories extends BaseController
             $this->data['category'] = $category;
         }
 
-        return $this->renderView('admin/categories/index', $this->data);
+        return view('admin/categories/index', $this->data);
     }
 
     public function update($id)
@@ -43,13 +43,13 @@ class Categories extends BaseController
         } else {
             $this->getCategories();
             $this->data['errors'] = $this->categoryModel->errors();
-            return $this->renderView('admin/categories/index', $this->data);
+            return view('admin/categories/index', $this->data);
         }
     }
 
     public function destroy($id)
     {
-        // $this->getCategories();
+        // $this->getCategories ();
         $category = $this->categoryModel->find($id);
         if (!$category) {
             $this->session->setFlashdata('errors', 'Invalid Category');
@@ -75,7 +75,7 @@ class Categories extends BaseController
         } else {
             $this->getCategories();
             $this->data['errors'] = $this->categoryModel->errors();
-            return $this->renderView('admin/categories/index', $this->data);
+            return view('admin/categories/index', $this->data);
         }
     }
 

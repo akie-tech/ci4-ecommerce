@@ -64,9 +64,4 @@ class BaseController extends Controller
 		$this->data['auth'] = $this->auth;
 		$this->data['currentUser'] = $this->currentUser;
 	}
-	protected function renderView($content = '', $data = [])
-	{
-		$data['content'] = $content;
-		return view("admin/layout", $data);
-	}
 }

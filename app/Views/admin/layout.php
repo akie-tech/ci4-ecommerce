@@ -37,19 +37,19 @@
         </div> -->
 
         <!-- navbar -->
-        <?= view('admin/shared/header') ?>
+        <?= $this->include('admin/shared/header') ?>
 
 
         <!-- Main Sidebar Container -->
-        <?= view('admin/shared/sidebar') ?>
+        <?= $this->include('admin/shared/sidebar') ?>
 
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
-            <?= view($content) ?>
+            <?= $this->renderSection('content') ?>
         </div>
         <!-- /.content-wrapper -->
 
-        <?= view('admin/shared/footer') ?>
+        <?= $this->include('admin/shared/footer') ?>
 
         <!-- Control Sidebar -->
         <aside class="control-sidebar control-sidebar-dark">
