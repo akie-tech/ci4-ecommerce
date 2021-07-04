@@ -31,10 +31,10 @@
 <body class="hold-transition sidebar-mini layout-fixed">
     <div class="wrapper">
 
-        <!-- Preloader -->
+        <!-- Preloader
         <div class="preloader flex-column justify-content-center align-items-center">
             <img class="animation__shake" src="<?= base_url('admin') ?>/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
-        </div>
+        </div> -->
 
         <!-- navbar -->
         <?= view('admin/shared/header') ?>
@@ -93,6 +93,11 @@
     <script src="<?= base_url('admin') ?>/js/demo.js"></script>
     <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
     <script src="<?= base_url('admin') ?>/js/pages/dashboard.js"></script>
+    <script>
+        $('.delete').submit(function() {
+            return confirm("Do you want to remove this item?")
+        })
+    </script>
 </body>
 
 </html>
