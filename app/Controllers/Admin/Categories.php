@@ -18,6 +18,7 @@ class Categories extends BaseController
     public function index($categoryId = null)
     {
         $this->getCategories();
+        $this->getParentOptions($categoryId);
         if ($categoryId) {
             $category = $this->categoryModel->find($categoryId);
             if (!$category) {
@@ -35,13 +36,32 @@ class Categories extends BaseController
         $params = [
             'id' => $id,
             'name' => $this->request->getVar('name'),
-            'slug' => strtolower(url_title($this->request->getVar('name')))
+            'parent_id' => $this->request->getVar('parent_id'),
         ];
+        $this->data['selectedParentId'] = $params['parent_id'];
         if ($this->categoryModel->save($params)) {
             $this->session->setFlashdata('success', 'Category has been saved');
             return redirect()->to('/admin/categories');
         } else {
             $this->getCategories();
+            $this->getParentOptions();
+            $this->data['errors'] = $this->categoryModel->errors();
+            return view('admin/categories/index', $this->data);
+        }
+    }
+    public function store()
+    {
+        $params = [
+            'name' => $this->request->getVar('name'),
+            'parent_id' => $this->request->getVar('parent_id'),
+        ];
+        $this->data['selectedParentId'] = $params['parent_id'];
+        if ($this->categoryModel->save($params)) {
+            $this->session->setFlashdata('success', 'Category has been saved');
+            return redirect()->to('/admin/categories');
+        } else {
+            $this->getCategories();
+            $this->getParentOptions();
             $this->data['errors'] = $this->categoryModel->errors();
             return view('admin/categories/index', $this->data);
         }
@@ -63,22 +83,13 @@ class Categories extends BaseController
         }
     }
 
-    public function store()
-    {
-        $params = [
-            'name' => $this->request->getVar('name'),
-            'slug' => strtolower(url_title($this->request->getVar('name')))
-        ];
-        if ($this->categoryModel->save($params)) {
-            $this->session->setFlashdata('success', 'Category has been saved');
-            return redirect()->to('/admin/categories');
-        } else {
-            $this->getCategories();
-            $this->data['errors'] = $this->categoryModel->errors();
-            return view('admin/categories/index', $this->data);
-        }
-    }
 
+
+
+    private function getParentOptions($exceptCategoryId = null)
+    {
+        $this->data['parentOptions'] = $this->categoryModel->getParentOptions($exceptCategoryId);
+    }
     private function getCategories()
     {
         $this->data['categories'] = $this->categoryModel->paginate($this->perPage, 'bootstrap');

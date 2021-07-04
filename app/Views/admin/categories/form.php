@@ -17,7 +17,17 @@
                     <label for="categoryName">Name</label>
                     <input type="text" name="name" class="form-control <?= empty($errors['name']) ? '' : 'is-invalid' ?>" value="<?php echo set_value('name', isset($category->name) ? ($category->name) : ''); ?>" id="categoryName" placeholder="Enter category name">
                     <?= empty($errors['name']) ? '' : '<span id="categoryName-error" class="error invalid-feedback">' . $errors['name'] . '</span>'  ?>
+                </div>
+                <div class="form-group">
+                    <label for="parentCategory">Parent</label>
+                    <?php
+                    $selected = !(empty($category->parent_id)) ? $category->parent_id : "";
 
+                    if (!empty($selectedParentId)) {
+                        $selected = $selectedParentId;
+                    }
+                    ?>
+                    <?= selectMultiLevel('parent_id', $parentOptions, ['class' => 'form-control', 'placeholder' => '-- Choose Category --', 'selected' => $selected]) ?>
                 </div>
             </div>
             <!-- /.card-body -->
