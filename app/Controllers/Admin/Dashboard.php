@@ -8,6 +8,6 @@ class Dashboard extends BaseController
 {
     public function index()
     {
-        return $this->renderView("admin/dashboard/index", $this->data);
+        return view("admin/dashboard/index", $this->data);
     }
 }

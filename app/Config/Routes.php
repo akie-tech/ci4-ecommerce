@@ -32,7 +32,9 @@ $routes->setAutoRoute(true);
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
 $routes->get('/', 'Home::index');
-$routes->group('admin', function ($routes) {
+
+$routes->group('admin', ['filter' => 'admin-auth:admin,operator'], function ($routes) {
+	$routes->get('dashboard', "Admin\Dashboard::index");
 	$routes->get('category', "Admin\Categories::index");
 	$routes->get('categories/(:num)', "Admin\Categories::index/$1");
 	$routes->post('categories', "Admin\Categories::store");
