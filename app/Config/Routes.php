@@ -34,12 +34,20 @@ $routes->setAutoRoute(true);
 $routes->get('/', 'Home::index');
 
 $routes->group('admin', ['filter' => 'admin-auth:admin,operator'], function ($routes) {
+	// Dashboard
 	$routes->get('dashboard', "Admin\Dashboard::index");
+	// Category
 	$routes->get('category', "Admin\Categories::index");
 	$routes->get('categories/(:num)', "Admin\Categories::index/$1");
 	$routes->post('categories', "Admin\Categories::store");
 	$routes->put('categories/(:num)', "Admin\Categories::update/$1");
 	$routes->delete('categories/(:num)', "Admin\Categories::destroy/$1");
+	// Attributes
+	$routes->get('attributes', "Admin\Attributes::index");
+	$routes->get('attributes/(:num)', "Admin\Attributes::index/$1");
+	$routes->post('attributes', "Admin\Attributes::store");
+	$routes->put('attributes/(:num)', "Admin\Attributes::update/$1");
+	$routes->delete('attributes/(:num)', "Admin\Attributes::destroy/$1");
 });
 
 

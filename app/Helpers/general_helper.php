@@ -6,7 +6,6 @@
  * @param string $name    name
  * @param array  $array   array data
  * @param array  $options additional option
- *
  * @return string
  */
 function selectMultiLevel($name, $array = [], $options = [])
