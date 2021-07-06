@@ -15,6 +15,9 @@ class Attributes extends BaseController
     {
         $this->attributeModel = new AttributeModel();
 
+        $this->data['currentAdminMenu'] = 'catalogue';
+        $this->data['currentAdminSubMenu'] = 'attribute';
+
         $this->data['attributeTypes'] = $this->attributeModel::ATTRIBUTE_TYPES;
         $this->data['isRequiredOptions'] = $this->attributeModel::IS_REQUIRED_OPTIONS;
         $this->data['isUniqueOptions'] = $this->attributeModel::IS_UNIQUE_OPTIONS;
