@@ -3,9 +3,9 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Entities\AttributeOption;
-use App\Models\AttributeOptionModel;
+
 use App\Models\AttributeModel;
+use App\Models\AttributeOptionModel;
 
 class AttributeOptions extends BaseController
 {
@@ -15,12 +15,13 @@ class AttributeOptions extends BaseController
 
     public function __construct()
     {
+        $this->attributeModel = new AttributeModel();
+        $this->attributeOptionModel = new AttributeOptionModel();
+
         $this->data['currentAdminMenu'] = 'catalogue';
         $this->data['currentAdminSubMenu'] = 'attribute_option';
-
-        $this->attributeOptions = new AttributeModel();
-        $this->attributeOptionModel = new AttributeOptionModel();
     }
+
     public function index($attributeId = null, $attributeOptionId = null)
     {
         if (!$attributeId) {
@@ -29,31 +30,35 @@ class AttributeOptions extends BaseController
         }
 
         if ($attributeId) {
-            $attribute = $this->attributeOptionModel->find($attributeId);
-            if ($attribute) {
+            $attribute = $this->attributeModel->find($attributeId);
+
+            if (!$attribute) {
                 $this->session->setFlashdata('errors', 'Invalid attribute');
                 return redirect()->to('/admin/attributes');
             }
+
             $this->data['attribute'] = $attribute;
         }
+
         if ($attributeOptionId) {
-            $attributeOption = $this->attributeModel->find($attributeOptionId);
+            $attributeOption = $this->attributeOptionModel->find($attributeOptionId);
 
             if (!$attributeOption) {
-                $this->session->setFlashdata('errors', 'Invalid attribute option ');
+                $this->session->setFlashdata('errors', 'Invalid attribute option');
                 return redirect()->to('/admin/attributes');
             }
 
             $this->data['attributeOption'] = $attributeOption;
         }
+
         $this->getAttributeOptions($attributeId);
 
         return view('admin/attribute_options/index', $this->data);
     }
 
-    private function getAttributeOptions($atributeId)
+    private function getAttributeOptions($attributeId)
     {
-        $this->data['attributeOptions'] = $this->attributeOptionModel->where('attribute_id', $atributeId)->paginate($this->perPage, 'bootstrap');
+        $this->data['attributeOptions'] = $this->attributeOptionModel->where('attribute_id', $attributeId)->paginate($this->perPage, 'bootstrap');
         $this->data['pager'] = $this->attributeOptionModel->pager;
     }
 
@@ -63,8 +68,9 @@ class AttributeOptions extends BaseController
 
         $params = [
             'name' => $this->request->getVar('name'),
-            'attribute_id' => $attributeId
+            'attribute_id' => $attributeId,
         ];
+
         if ($this->attributeOptionModel->save($params)) {
             $this->session->setFlashdata('success', 'Attribute option has been saved');
             return redirect()->to('/admin/attribute-options/' . $attributeId);
@@ -82,17 +88,18 @@ class AttributeOptions extends BaseController
 
         $params = [
             'id' => $id,
-            'name' => $this->request->getVar('name')
+            'name' => $this->request->getVar('name'),
         ];
+
         if ($this->attributeOptionModel->save($params)) {
-            $this->session->setFlashdata('success', ' Attribute option has been updated');
+            $this->session->setFlashdata('success', 'Attribute option has been updated');
             return redirect()->to('/admin/attribute-options/' . $attributeId);
         } else {
             $this->getAttributeOptions($attributeId);
-            $this->data['attributeOptions'] = $this->attributeOptionModel->find($id);
+            $this->data['attributeOption'] = $this->attributeOptionModel->find($id);
             $this->data['attribute'] = $this->attributeModel->find($attributeId);
             $this->data['errors'] = $this->attributeOptionModel->errors();
-            return view('admin/attribute_options/index');
+            return view('admin/attribute_options/index', $this->data);
         }
     }
 
@@ -108,10 +115,10 @@ class AttributeOptions extends BaseController
         $attributeId = $attributeOption->attribute_id;
 
         if ($this->attributeOptionModel->delete($attributeOption->id)) {
-            $this->session->setFlashdata('succes', 'Attribute option has been deleted');
+            $this->session->setFlashdata('success', 'Attribute option has been deleted');
             return redirect()->to('/admin/attribute-options/' . $attributeId);
         } else {
-            $this->session->setFlashdata('errors', 'Couldn`t delete attribute option');
+            $this->session->setFlashdata('errors', 'Could not delete attribute option');
             return redirect()->to('/admin/attribute-options/' . $attributeId);
         }
     }
