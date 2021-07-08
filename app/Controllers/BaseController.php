@@ -38,7 +38,7 @@ class BaseController extends Controller
 	 * @var array
 	 */
 	protected $helpers = ['form', 'general'];
-	protected $currentUser, $auth, $session;
+	protected $currentUser, $auth, $session, $db;
 	protected $data = [];
 
 	/**
@@ -63,5 +63,6 @@ class BaseController extends Controller
 		$this->currentUser = $this->auth->user()->row();
 		$this->data['auth'] = $this->auth;
 		$this->data['currentUser'] = $this->currentUser;
+		$this->db = \Config\Database::connect();
 	}
 }
