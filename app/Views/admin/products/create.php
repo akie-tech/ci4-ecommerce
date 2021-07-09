@@ -1,6 +1,8 @@
 <?= $this->extend('admin/layout') ?>
 
 <?= $this->section('content') ?>
+
+
 <!-- Content Header (Page header) -->
 <section class="content-header">
     <div class="container-fluid">
@@ -39,6 +41,7 @@
                     </div>
                     <!-- /.card-header -->
                     <!-- form start -->
+
                     <?php if (!empty($product)) : ?>
                         <form role="form" method="post" action="<?= site_url('admin/products/' . $product->id) ?>">
                             <input name="_method" type="hidden" value="PUT">
@@ -74,22 +77,26 @@
                                 <div class="simple-attributes">
                                     <?= $this->include('admin/products/simple_product_fields') ?>
                                 </div>
+                                <div class="configurable-attributes">
+                                    <?= $this->include('admin/products/configurable_attributes') ?>
+                                </div>
                             </div>
-                            <!-- /.card-body -->
-
-                            <div class="card-footer">
-                                <button type="submit" class="btn btn-primary">Submit</button>
-
-                                <?php if (!empty($product)) : ?>
-                                    <a href="<?= site_url('admin/products') ?>" class="btn btn-default">Cancel</a>
-                                <?php endif; ?>
-                            </div>
-                            </form>
                 </div>
-                <!-- /.card -->
+                <!-- /.card-body -->
+
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+
+                    <?php if (!empty($product)) : ?>
+                        <a href="<?= site_url('admin/products') ?>" class="btn btn-default">Cancel</a>
+                    <?php endif; ?>
+                </div>
+                </form>
             </div>
             <!-- /.card -->
         </div>
+        <!-- /.card -->
+    </div>
     </div>
     </div><!-- /.container-fluid -->
 </section>

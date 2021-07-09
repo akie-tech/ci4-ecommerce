@@ -13,7 +13,7 @@ class BrandModel extends Model
 
     protected $allowedFields = ['name', 'slug'];
 
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 

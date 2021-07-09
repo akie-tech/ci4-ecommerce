@@ -66,7 +66,7 @@ $routes->group('admin', ['filter' => 'admin-auth:admin,operator'], function ($ro
 	$routes->get('products/create', 'Admin\Products::create');
 	$routes->get('products/(:num)', 'Admin\Products::index/$1');
 	$routes->get('products/(:num)/edit', 'Admin\Products::edit/$1');
-	$routes->post('products/(:num)', 'Admin\Products::store');
+	$routes->post('products', 'Admin\Products::store');
 	$routes->put('products/(:num)', 'Admin\Products::update/$1');
 	$routes->delete('products/(:num)', 'Admin\Products::destroy/$1');
 });
