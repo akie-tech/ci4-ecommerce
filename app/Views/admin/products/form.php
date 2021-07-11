@@ -53,7 +53,16 @@
                                 <?= view('admin/shared/flash_message') ?>
                                 <div class="form-group">
                                     <label for="productType">Type</label>
-                                    <?= form_dropdown('type', $types, set_value('type', isset($product->type) ? ($product->type) : ''), ['class' => 'form-control product-type', 'id' => 'productType', 'required' => true]) ?>
+                                    <?php
+                                    $typeInputProperties = ['class' => 'form-control product-type', 'id' => 'productType', 'required' => true];
+
+                                    if (!empty($product)) {
+                                        $typeInputProperties = array_merge($typeInputProperties, [
+                                            'readonly' => true,
+                                        ]);
+                                    }
+                                    ?>
+                                    <?= form_dropdown('type', $types, set_value('type', isset($product->type) ? ($product->type) : ''), $typeInputProperties) ?>
                                 </div>
                                 <div class="form-group">
                                     <label for="productSku">SKU</label>
@@ -78,25 +87,44 @@
                                     <?= $this->include('admin/products/simple_product_fields') ?>
                                 </div>
                                 <div class="configurable-attributes">
-                                    <?= $this->include('admin/products/configurable_attributes') ?>
+                                    <?php if (empty($product)) : ?>
+                                        <div class="configurable-attributes">
+                                            <?= $this->include('admin/products/configurable_attributes') ?>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($product) && $product->type == 'configurable') : ?>
+                                        <?= $this->include('admin/products/configurable_fields'); ?>
+                                    <?php endif; ?>
+                                    <div class="form-group">
+                                        <label for="productShortDescription">Short Description</label>
+                                        <?= form_textarea('short_description', set_value('short_description', isset($product->short_description) ? ($product->short_description) : ''), ['class' => 'form-control', 'id' => 'productShortDescription']) ?>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="productDescription">Description</label>
+                                        <?= form_textarea('description', set_value('description', isset($product->description) ? ($product->description) : ''), ['class' => 'form-control', 'id' => 'productDescription']) ?>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="productStatus">Status</label>
+                                        <?= form_dropdown('status', $statuses, set_value('status', isset($product->status) ? ($product->status) : ''), ['class' => 'form-control', 'id' => 'productStatus']) ?>
+                                    </div>
                                 </div>
                             </div>
-                </div>
-                <!-- /.card-body -->
+                            <!-- /.card-body -->
 
-                <div class="card-footer">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                            <div class="card-footer">
+                                <button type="submit" class="btn btn-primary">Submit</button>
 
-                    <?php if (!empty($product)) : ?>
-                        <a href="<?= site_url('admin/products') ?>" class="btn btn-default">Cancel</a>
-                    <?php endif; ?>
+                                <?php if (!empty($product)) : ?>
+                                    <a href="<?= site_url('admin/products') ?>" class="btn btn-default">Cancel</a>
+                                <?php endif; ?>
+                            </div>
+                            </form>
                 </div>
-                </form>
+                <!-- /.card -->
             </div>
             <!-- /.card -->
         </div>
-        <!-- /.card -->
-    </div>
     </div>
     </div><!-- /.container-fluid -->
 </section>
