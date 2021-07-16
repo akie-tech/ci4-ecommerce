@@ -133,25 +133,20 @@ class UploadedFile extends File implements UploadedFileInterface
 		$targetPath = rtrim($targetPath, '/') . '/';
 		$targetPath = $this->setPath($targetPath); //set the target path
 
-		if ($this->hasMoved)
-		{
+		if ($this->hasMoved) {
 			throw HTTPException::forAlreadyMoved();
 		}
 
-		if (! $this->isValid())
-		{
+		if (!$this->isValid()) {
 			throw HTTPException::forInvalidFile();
 		}
 
 		$name        = is_null($name) ? $this->getName() : $name;
 		$destination = $overwrite ? $targetPath . $name : $this->getDestination($targetPath . $name);
 
-		try
-		{
+		try {
 			move_uploaded_file($this->path, $destination);
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$error   = error_get_last();
 			$message = isset($error['message']) ? strip_tags($error['message']) : '';
 			throw HTTPException::forMoveFailed(basename($this->path), $targetPath, $message);
@@ -177,12 +172,10 @@ class UploadedFile extends File implements UploadedFileInterface
 	 */
 	protected function setPath(string $path): string
 	{
-		if (! is_dir($path))
-		{
+		if (!is_dir($path)) {
 			mkdir($path, 0777, true);
 			//create the index.html file
-			if (! is_file($path . 'index.html'))
-			{
+			if (!is_file($path . 'index.html')) {
 				$file = fopen($path . 'index.html', 'x+');
 				fclose($file);
 			}
@@ -376,7 +369,7 @@ class UploadedFile extends File implements UploadedFileInterface
 		$fileName   = $fileName ?? $this->getRandomName();
 
 		// Move the uploaded file to a new location.
-		$this->move(WRITEPATH . 'uploads/' . $folderName, $fileName);
+		$this->move(ROOTPATH . 'public/uploads/' . $folderName, $fileName);
 
 		return $folderName . $this->name;
 	}

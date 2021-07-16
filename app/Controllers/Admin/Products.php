@@ -3,7 +3,6 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-
 use App\Models\ProductModel;
 use App\Models\CategoryModel;
 use App\Models\BrandModel;
@@ -11,10 +10,18 @@ use App\Models\AttributeModel;
 use App\Models\AttributeOptionModel;
 use App\Models\ProductAttributeValueModel;
 use App\Models\ProductInventoryModel;
+use App\Models\ProductImageModel;
 
 class Products extends BaseController
 {
-    protected $productModel, $categoryModel, $brandModel, $attributeModel, $attributeOptionModel, $productAttributeValueModel, $productInventoryModel;
+    protected $productModel,
+        $categoryModel,
+        $brandModel,
+        $attributeModel,
+        $attributeOptionModel,
+        $productAttributeValueModel,
+        $productInventoryModel,
+        $productImageModel;
 
     protected $perPage = 10;
 
@@ -27,6 +34,7 @@ class Products extends BaseController
         $this->attributeOptionModel = new AttributeOptionModel();
         $this->productAttributeValueModel = new ProductAttributeValueModel();
         $this->productInventoryModel = new ProductInventoryModel();
+        $this->productImageModel = new ProductImageModel();
 
 
         $this->data['currentAdminMenu'] = 'catalogue';
@@ -61,13 +69,27 @@ class Products extends BaseController
         }
         return $brands;
     }
-
-    private function getProducts()
+    public function trashed()
     {
-        $this->data['products'] = $this->productModel
-            ->select('products.*', 'product_inventories.qty')
-            ->join('product_inventories', 'products.id = product_inventories.product_id', 'left')
-            ->paginate($this->perPage, 'bootstrap');
+        $this->getProducts(['onlyDeleted' => true]);
+        $this->data['currentAdminSubMenu'] = 'deleted-product';
+        return view('admin/products/index', $this->data);
+    }
+
+    private function getProducts($options = [])
+    {
+        // $this->data['products'] = $this->productModel
+        //     ->select('products.*', 'product_inventories.qty')
+        //     ->join('product_inventories', 'products.id = product_inventories.product_id', 'left')
+        //     ->paginate($this->perPage, 'bootstrap');
+        $products = $this->productModel
+            ->select('products.*, product_inventories.qty')
+            ->join('product_inventories', 'products.id = product_inventories.product_id');
+
+        if (isset($options['onlyDeleted']) && $options['onlyDeleted']) {
+            $products = $products->onlyDeleted();
+        }
+        $this->data['products'] = $products->paginate($this->perPage, 'bootstrap');
 
         $this->data['pager'] = $this->productModel->pager;
     }
@@ -100,6 +122,8 @@ class Products extends BaseController
         $this->data['product'] = $product;
         $this->data['configurableAttributes'] = $this->getConfigurableAttributes();
         $this->data['categoryIds'] = array_column($product->categories, 'id');
+        $this->data['productMenu'] = 'product_details';
+
         return view('admin/products/form', $this->data);
     }
 
@@ -127,13 +151,9 @@ class Products extends BaseController
             $params['price'] = 0;
             $params['configurable'] = $this->request->getVar('configurable');
         }
-
-
         $this->db->transStart();
         $this->productModel->save($params);
         $product = $this->productModel->find($this->db->insertID());
-
-
 
         if ($product && $product->type == $this->productModel::SIMPLE) {
             $productInventoryTable = $this->db->table('product_inventories');
@@ -152,6 +172,7 @@ class Products extends BaseController
                 }
             }
         }
+
         if ($product->type == $this->productModel::CONFIGURABLE) {
             $this->generateProductVariants($product, $params);
         }
@@ -198,6 +219,7 @@ class Products extends BaseController
             'status' => $this->request->getVar('status'),
         ];
 
+
         if ($product->type == $this->productModel::CONFIGURABLE) {
             $params['variants'] = $this->request->getVar('variants');
         }
@@ -237,6 +259,153 @@ class Products extends BaseController
             $this->session->setFlashdata('success', 'Product has been saved.');
             return redirect()->to('/admin/products');
         }
+    }
+
+    public function destroy($id)
+    {
+        $product = $this->productModel->withDeleted()->find($id);
+
+        if (!$product) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        if (empty($product->deleted_at)) {
+            $this->productModel->delete($id);
+
+            $this->session->setFlashdata('success', 'Product has been deleted');
+            return redirect()->to('/admin/products');
+        } else {
+            $this->db->table('product_categories')->where('product_id', $id)->delete();
+            $this->productAttributeValueModel->where('product_id', $id)->delete();
+            $this->productInventoryModel->where('product_id', $id)->delete();
+
+            $this->productModel->delete($id, true);
+
+            $this->session->setFlashdata('success', 'Product has been deleted permanently');
+            return redirect()->to('/admin/products/trashed');
+        }
+    }
+    public function restore($id)
+    {
+        $product = $this->productModel->withDeleted()->find($id);
+        if (!$product) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+        if ($product->deleted_at) {
+            $params = [
+                'deleted_at' => null,
+            ];
+            $this->productModel->update($id, $params);
+
+            $this->session->setFlashdata('success', 'Product has been restored');
+            return redirect()->to('/admin/products');
+        }
+    }
+
+    public function images($id)
+    {
+        $product = $this->productModel->find($id);
+
+
+        if (!$product) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        if ($product->parent_id) {
+            return redirect()->to('/admin/products/' . $product->parent_id . '/images');
+        }
+
+
+        $this->data['product'] = $product;
+        $this->data['productImages'] = $this->productImageModel
+            ->where('product_id', $product->id)
+            ->orderBy('created_at', 'desc')
+            ->findAll();
+
+        $this->data['productMenu'] = 'product_images';
+        return view('admin/products/images', $this->data);
+    }
+
+    public function uploadImage($productId)
+    {
+        $product = $this->productModel->find($productId);
+
+        if (!$productId) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $this->data['product'] = $product;
+        $this->data['productMenu'] = 'product_images';
+
+        return view('admin/products/image_upload', $this->data);
+    }
+
+    public function doUploadImage($productId)
+    {
+        $product = $this->productModel->find($productId);
+
+        if (!$product) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $image = $this->request->getFile('image');
+        $fileName = $image->getRandomName();
+
+        $path = $image->store('/products', $fileName);
+        // $path = $image->move(ROOTPATH . 'public/uploads/products', $fileName);
+        if ($path) {
+
+            $images = $this->generateImages($path, $fileName);
+
+            $params = array_merge($images, [
+                'product_id' => $productId,
+                'original' => $path
+            ]);
+
+            $this->productImageModel->save($params);
+
+            $this->session->setFlashdata('success', 'Image has been saved.');
+
+            return redirect()->to('/admin/products/' . $productId . '/images');
+        }
+
+        $this->session->setFlashdata('error', 'Image upload failed');
+        return redirect()->to('/admin/products/' . $productId . '/images');
+    }
+
+
+    private function generateImages($originalPath, $fileName)
+    {
+        $imageLib = \Config\Services::image();
+
+        $uploadDir = ROOTPATH . 'public/uploads/';
+
+        list($name, $extension) = explode('.', $fileName);
+
+        $images = [];
+        foreach ($this->productImageModel::IMAGE_SIZES as $size => $sizeDetails) {
+            $imagePath = 'products/' . $name . '_' . $size . '.' . $extension;
+
+            $imageLib->withFile($uploadDir . $originalPath)
+                ->fit($sizeDetails['width'], $sizeDetails['height'], 'center')
+                ->save($uploadDir . $imagePath);
+
+            $images[$size] = $imagePath;
+        }
+
+        return $images;
+    }
+    public function destroyImage($id)
+    {
+        $image = $this->productImageModel->find($id);
+
+        if (!$image) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $this->productImageModel->delete($id);
+        $this->session->setFlashdata('success', 'Image has been deleted');
+        return redirect()->to('/admin/products/' . $image->product_id . '/images');
     }
 
     private function updateProductVariants($params)

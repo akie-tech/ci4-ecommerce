@@ -25,15 +25,18 @@
     <div class="container-fluid">
         <!-- /.row -->
         <div class="row">
-            <div class="col-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Menu</h3>
-                    </div>
-                    <div class="card-body">
+            <?php if (!empty($product)) : ?>
+                <div class="col-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Menu</h3>
+                        </div>
+                        <div class="card-body">
+                            <?= $this->include('admin/products/menus'); ?>
+                        </div>
                     </div>
                 </div>
-            </div>
+            <?php endif ?>
             <div class="col-9">
                 <div class="card">
                     <div class="card-header">
@@ -104,10 +107,11 @@
                                         <label for="productDescription">Description</label>
                                         <?= form_textarea('description', set_value('description', isset($product->description) ? ($product->description) : ''), ['class' => 'form-control', 'id' => 'productDescription']) ?>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="productStatus">Status</label>
-                                        <?= form_dropdown('status', $statuses, set_value('status', isset($product->status) ? ($product->status) : ''), ['class' => 'form-control', 'id' => 'productStatus']) ?>
-                                    </div>
+
+                                </div>
+                                <div class="form-group">
+                                    <label for="productStatus">Status</label>
+                                    <?= form_dropdown('status', $statuses, set_value('status', isset($product->status) ? ($product->status) : ''), ['class' => 'form-control', 'id' => 'productStatus']) ?>
                                 </div>
                             </div>
                             <!-- /.card-body -->
